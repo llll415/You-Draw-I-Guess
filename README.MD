@@ -31,12 +31,13 @@
 
 1.  **环境要求**:
     *   确保已安装 Java Development Kit (JDK) 8 或更高版本。
-    *   前往Releases下载`draw-guess-server-1.3.0-color.jar`
+    *   前往Releases下载`draw-guess-x.x.x-xxxx.jar`
     *   下载好后放到一个合适的地方(新建一个文件夹装)然后使用以下命令运行
         ```
-        java -jar draw-guess-server-1.3.0-color.jar
+        java -jar draw-guess-x.x.x-xxxx.jar
         ```
     *   日志将输出至logs\server.log中
+    *   第一次运行服务器会生成server.properties文件，可在里面配置http/游戏服务器监听的地址/端口
 ### 自行编译(使用Maven)
 1.  **步骤**:
     *   下载源码包/克隆项目
@@ -45,10 +46,11 @@
         ```
         mvn clean package
         ```
-    *   构建成功后 即可在`target`目录下找到`draw-guess-server-1.3.0-color.jar`文件
+    *   构建成功后 即可在`target`目录下找到`draw-guess-x.x.x-xxxx.jarr`文件
     *   后续把该文件放进一个文件夹内使用命令以下运行即可使用 日志将输出至logs\server.log中
+    *   第一次运行服务器会生成server.properties文件，可在里面配置http/游戏服务器监听的地址/端口
         ```
-        java -jar draw-guess-server-1.3.0-color.jar
+        java -jar draw-guess-x.x.x-xxxx.jar
         ```
 
 ### 运行客户端 (浏览器)
@@ -87,6 +89,7 @@
 *   `src\main\resources\web\app.js`: 游戏的核心JavaScript文件，处理所有前端逻辑。
 *   `src\main\java\com\draw\server\WebSocketGameServer.java`: 后端WebSocket服务器的完整Java代码。
 *   `src\main\resources\logback.xml`: 服务端的日志配置文件。
+*   `src\main\java\com\draw\server\ServerConfig.java`:服务器配置文件
 
 ## 💡注意事项
 
