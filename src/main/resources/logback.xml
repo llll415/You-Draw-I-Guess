@@ -1,0 +1,36 @@
+<configuration>
+
+    <!-- 1. 定义控制台输出器 (ConsoleAppender) -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <charset>GBK</charset> 
+            <!-- 
+              【重要修改】
+              将 %yellow(%logger{20}) 修改为 %yellow(%logger)
+            -->
+            <pattern>%cyan([%d{HH:mm:ss.SSS}]) %highlight(%-5level) %yellow(%logger) - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 2. 定义文件输出器 (RollingFileAppender) -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/server.log</file>
+        
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/server.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 3. 定义根Logger -->
+    <root level="INFO">
+        <appender-ref ref="STDOUT" />
+        <appender-ref ref="FILE" />
+    </root>
+
+</configuration>
