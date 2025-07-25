@@ -35,22 +35,17 @@ public class WebSocketGameServer extends WebSocketServer {
     private final List<WebSocket> playerJoinOrder = Collections.synchronizedList(new ArrayList<>());
 
     private static final List<String> WORD_LIST = List.of(
-            // 动物
+            // ... (词汇列表保持不变, 已折叠)
             "大象", "长颈鹿", "企鹅", "袋鼠", "熊猫", "狮子", "老虎", "海豚", "章鱼", "螃蟹",
             "蝴蝶", "蜻蜓", "猫头鹰", "啄木鸟", "火烈鸟", "孔雀", "变色龙", "鳄鱼", "蜗牛", "刺猬",
-            // 水果 & 食物
             "披萨", "汉堡", "薯条", "冰淇淋", "甜甜圈", "爆米花", "寿司", "牛角包", "草莓", "菠萝",
             "西瓜", "葡萄", "樱桃", "棒棒糖", "巧克力", "蛋糕", "方便面", "火锅", "烤串", "茶叶蛋",
-            // 物品
             "手机", "笔记本电脑", "键盘", "鼠标", "耳机", "照相机", "电视", "空调", "冰箱", "洗衣机",
             "沙发", "台灯", "闹钟", "雨伞", "背包", "眼镜", "手表", "吉他", "钢琴", "小提琴",
             "马桶", "牙刷", "吹风机", "剪刀", "订书机", "红绿灯", "消防栓", "路灯", "秋千", "风筝",
-            // 行为 & 概念
             "画画", "跳舞", "唱歌", "阅读", "跑步", "游泳", "钓鱼", "睡觉", "打电话", "庆祝",
             "思考", "胜利", "爱心", "彩虹", "闪电", "龙卷风", "火山", "瀑布", "日出", "日落",
-            // 游戏动漫
             "超级马里奥", "皮卡丘", "哆啦A梦", "奥特曼", "海绵宝宝", "蜘蛛侠", "钢铁侠", "孙悟空",
-            // 职业
             "医生", "警察", "消防员", "老师", "宇航员", "程序员", "画家", "厨师"
     );
 
@@ -62,15 +57,17 @@ public class WebSocketGameServer extends WebSocketServer {
     private final String osInfo;
     private final String javaInfo;
 
-    public WebSocketGameServer(int port) {
-        super(new InetSocketAddress(port));
+    // 【修改】构造函数，接收主机地址和端口
+    public WebSocketGameServer(String host, int port) {
+        super(new InetSocketAddress(host, port));
         this.osInfo = System.getProperty("os.name") + " (" + System.getProperty("os.arch") + ")";
         this.javaInfo = "Java " + System.getProperty("java.version");
     }
 
     @Override
     public void onStart() {
-        logger.info("WebSocket 你画我猜服务器已在端口 {} 成功启动！", getPort());
+        // 【修改】日志输出更详细的地址和端口
+        logger.info("WebSocket 你画我猜服务器已在 {}:{} 成功启动！", getAddress().getHostString(), getPort());
         setConnectionLostTimeout(100);
         statsBroadcaster.scheduleAtFixedRate(this::broadcastServerStats, 0, 3, TimeUnit.SECONDS);
     }
@@ -267,22 +264,30 @@ public class WebSocketGameServer extends WebSocketServer {
         synchronized (playerNames) { for (WebSocket conn : playerNames.keySet()) { if (conn != null && !conn.equals(sender)) { conn.send(message); } } }
     }
 
+    // 【修改】整个 main 方法体
     public static void main(String[] args) {
-        int wsPort = 12222;
-        int httpPort = 56678;
+        // 1. 加载或创建配置文件
+        ServerConfig config = new ServerConfig();
+
         try {
-            WebSocketGameServer wsServer = new WebSocketGameServer(wsPort);
+            // 2. 使用配置启动 WebSocket 服务器
+            WebSocketGameServer wsServer = new WebSocketGameServer(config.getWsHost(), config.getWsPort());
             wsServer.start();
-            HttpServer httpServer = createHttpServer(httpPort);
+
+            // 3. 使用配置启动 HTTP 服务器
+            HttpServer httpServer = createHttpServer(config.getHttpHost(), config.getHttpPort());
             httpServer.start();
-            logger.info("HTTP 服务器已在端口 {} 启动，请通过 http://0.0.0.0:{} 访问。", httpPort, httpPort);
+            logger.info("HTTP 服务器已在端口 {} 启动，请通过 http://{}:{} 访问。", config.getHttpPort(), config.getHttpHost(), config.getHttpPort());
+
         } catch (Exception e) {
             logger.error("启动服务器失败：", e);
         }
     }
 
-    private static HttpServer createHttpServer(int port) throws IOException {
-        HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
+    // 【修改】方法签名，接收主机地址和端口
+    private static HttpServer createHttpServer(String host, int port) throws IOException {
+        // 【修改】使用传入的主机和端口创建地址
+        HttpServer server = HttpServer.create(new InetSocketAddress(host, port), 0);
         server.createContext("/", new HttpHandler() {
             @Override
             public void handle(HttpExchange exchange) throws IOException {
