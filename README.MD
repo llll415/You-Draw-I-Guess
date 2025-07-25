@@ -3,6 +3,8 @@
 这是一款经典的在线多人你画我猜游戏，完全基于Web技术实现。一位玩家根据得到的词语进行绘画，其他玩家实时竞猜，猜对获得分数，轮流进行，充满趣味和挑战，
 
 **~~该readme主要也是由Gemini生成~~。**
+
+***[[English-README]](https://github.com/llll415/You-Draw-I-Guess/blob/main/README-EN.MD)***
 ## 项目截图
 
 ![](img/image.png)
