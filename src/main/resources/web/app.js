@@ -2,8 +2,19 @@ window.onload = () => {
     // --- Dynamic Background ---
     function setDynamicBackground() { const pcApiUrl = 'https://imageapi.hoshino2.top/pc/'; const mobileApiUrl = 'https://imageapi.hoshino2.top/mobile/'; const imageUrl = window.innerWidth <= 768 ? mobileApiUrl : pcApiUrl; const finalUrl = `${imageUrl}?time=${new Date().getTime()}`; document.body.style.backgroundImage = `url('${finalUrl}')`; }
     setDynamicBackground();
+    
+    // 【修改】优化移动端resize事件，防止滑动时刷新背景
+    let lastWindowWidth = window.innerWidth; // 存储初始窗口宽度
     let resizeTimer;
-    window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(setDynamicBackground, 250); });
+    window.addEventListener('resize', () => {
+        const currentWidth = window.innerWidth;
+        // 仅当窗口宽度发生变化时，才认为是真正的 resize（例如横竖屏切换）
+        if (currentWidth !== lastWindowWidth) {
+            lastWindowWidth = currentWidth; // 更新记录的宽度
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(setDynamicBackground, 250);
+        }
+    });
 
     // --- DOM Elements ---
     const playerNameInput = document.getElementById('player-name-input');
@@ -101,7 +112,7 @@ window.onload = () => {
 
     // --- Load saved data ---
     playerNameInput.value = localStorage.getItem('drawGuessPlayerName') || '';
-    const defaultWsUrl = `ws://${window.location.hostname}:12222`;
+    const defaultWsUrl = `ws://${window.location.hostname}:34555`;
     serverAddressInput.value = localStorage.getItem('drawGuessServerAddress') || defaultWsUrl;
     connectButton.textContent = '进入游戏';
     startServerTesting();
@@ -238,11 +249,50 @@ window.onload = () => {
     // --- Drawing and Message Sending Logic ---
     function drawLine(x1, y1, x2, y2) { ctx.beginPath(); ctx.strokeStyle = '#000'; ctx.lineWidth = 5; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); }
     function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
-    function getMousePos(canvas, evt) { const rect = canvas.getBoundingClientRect(); const scaleX = canvas.width / rect.width; const scaleY = canvas.height / rect.height; return { x: (evt.clientX - rect.left) * scaleX, y: (evt.clientY - rect.top) * scaleY }; }
-    canvas.addEventListener('mousedown', (e) => { if (!isMyTurn) return; isDrawing = true; const pos = getMousePos(canvas, e); [lastX, lastY] = [pos.x, pos.y]; });
-    canvas.addEventListener('mousemove', (e) => { if (!isDrawing || !isMyTurn) return; const pos = getMousePos(canvas, e); const newX = pos.x; const newY = pos.y; drawLine(lastX, lastY, newX, newY); socket.send(`DRAW:${lastX},${lastY},${newX},${newY}`); [lastX, lastY] = [newX, newY]; });
-    canvas.addEventListener('mouseup', () => isDrawing = false);
-    canvas.addEventListener('mouseout', () => isDrawing = false);
+    
+    function getMousePos(canvas, evt) {
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
+        const clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
+        return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
+    }
+
+    function handleDrawStart(e) {
+        if (!isMyTurn) return;
+        e.preventDefault();
+        isDrawing = true;
+        const pos = getMousePos(canvas, e);
+        [lastX, lastY] = [pos.x, pos.y];
+    }
+
+    function handleDrawMove(e) {
+        if (!isDrawing || !isMyTurn) return;
+        e.preventDefault();
+        const pos = getMousePos(canvas, e);
+        const newX = pos.x;
+        const newY = pos.y;
+        drawLine(lastX, lastY, newX, newY);
+        socket.send(`DRAW:${lastX},${lastY},${newX},${newY}`);
+        [lastX, lastY] = [newX, newY];
+    }
+
+    function handleDrawEnd(e) {
+        e.preventDefault();
+        isDrawing = false;
+    }
+
+    canvas.addEventListener('mousedown', handleDrawStart);
+    canvas.addEventListener('mousemove', handleDrawMove);
+    canvas.addEventListener('mouseup', handleDrawEnd);
+    canvas.addEventListener('mouseout', handleDrawEnd);
+
+    canvas.addEventListener('touchstart', handleDrawStart);
+    canvas.addEventListener('touchmove', handleDrawMove);
+    canvas.addEventListener('touchend', handleDrawEnd);
+    canvas.addEventListener('touchcancel', handleDrawEnd);
+
     clearCanvas();
     function sendGuess() { const text = guessInput.value; if (socket && socket.readyState === WebSocket.OPEN && text && text.trim() !== '') { socket.send(`GUESS:${text}`); guessInput.value = ''; } }
     sendButton.addEventListener('click', sendGuess);
