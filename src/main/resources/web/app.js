@@ -2,15 +2,12 @@ window.onload = () => {
     // --- Dynamic Background ---
     function setDynamicBackground() { const pcApiUrl = 'https://imageapi.hoshino2.top/pc/'; const mobileApiUrl = 'https://imageapi.hoshino2.top/mobile/'; const imageUrl = window.innerWidth <= 768 ? mobileApiUrl : pcApiUrl; const finalUrl = `${imageUrl}?time=${new Date().getTime()}`; document.body.style.backgroundImage = `url('${finalUrl}')`; }
     setDynamicBackground();
-    
-    // 【修改】优化移动端resize事件，防止滑动时刷新背景
-    let lastWindowWidth = window.innerWidth; // 存储初始窗口宽度
+    let lastWindowWidth = window.innerWidth;
     let resizeTimer;
     window.addEventListener('resize', () => {
         const currentWidth = window.innerWidth;
-        // 仅当窗口宽度发生变化时，才认为是真正的 resize（例如横竖屏切换）
         if (currentWidth !== lastWindowWidth) {
-            lastWindowWidth = currentWidth; // 更新记录的宽度
+            lastWindowWidth = currentWidth;
             clearTimeout(resizeTimer);
             resizeTimer = setTimeout(setDynamicBackground, 250);
         }
@@ -110,12 +107,75 @@ window.onload = () => {
         }
     }
 
-    // --- Load saved data ---
-    playerNameInput.value = localStorage.getItem('drawGuessPlayerName') || '';
-    const defaultWsUrl = `ws://${window.location.hostname}:34555`;
-    serverAddressInput.value = localStorage.getItem('drawGuessServerAddress') || defaultWsUrl;
-    connectButton.textContent = '进入游戏';
-    startServerTesting();
+    // 【新增】一个辅助函数，用于“静默”测试URL是否可连接，并返回一个Promise
+    function validateUrl(url) {
+        return new Promise(resolve => {
+            if (!url || (!url.startsWith('ws://') && !url.startsWith('wss://'))) {
+                return resolve(false);
+            }
+            try {
+                const testSocket = new WebSocket(url);
+                const timer = setTimeout(() => {
+                    testSocket.close();
+                    resolve(false);
+                }, 2000); // 2秒超时
+                testSocket.onopen = () => {
+                    clearTimeout(timer);
+                    testSocket.close();
+                    resolve(true);
+                };
+                testSocket.onerror = () => {
+                    clearTimeout(timer);
+                    resolve(false);
+                };
+            } catch (e) {
+                resolve(false);
+            }
+        });
+    }
+
+    // 【修改】重写整个初始化逻辑
+    async function initializeConnectionDefaults() {
+        playerNameInput.value = localStorage.getItem('drawGuessPlayerName') || '';
+        connectButton.textContent = '进入游戏';
+
+        let newDefaultUrl;
+        try {
+            const response = await fetch('/api/config');
+            if (!response.ok) throw new Error('API fetch failed');
+            const config = await response.json();
+            newDefaultUrl = `ws://${window.location.hostname}:${config.ws_port}`;
+        } catch (error) {
+            console.error("无法加载服务器配置，将使用回退端口:", error);
+            newDefaultUrl = `ws://${window.location.hostname}:12222`; // 回退值
+        }
+
+        const savedUrl = localStorage.getItem('drawGuessServerAddress');
+
+        if (savedUrl) {
+            const isSavedUrlStillValid = await validateUrl(savedUrl);
+            if (isSavedUrlStillValid) {
+                // 保存的URL仍然有效，使用它
+                console.log("使用本地存储的有效服务器地址:", savedUrl);
+                serverAddressInput.value = savedUrl;
+            } else {
+                // 保存的URL已失效，使用从服务器获取的新默认值
+                console.warn("本地存储的服务器地址已失效，更新为服务器提供的新地址:", newDefaultUrl);
+                serverAddressInput.value = newDefaultUrl;
+                localStorage.setItem('drawGuessServerAddress', newDefaultUrl); // 更新本地存储
+            }
+        } else {
+            // 本地没有保存任何URL，直接使用新获取的默认值
+            console.log("本地无缓存，使用服务器提供的默认地址:", newDefaultUrl);
+            serverAddressInput.value = newDefaultUrl;
+        }
+
+        // 最终，对输入框中现有的值启动连接测试
+        startServerTesting();
+    }
+    
+    // 页面加载后立即执行初始化
+    initializeConnectionDefaults();
 
     // --- Connection Logic ---
     connectButton.addEventListener('click', () => {
@@ -123,8 +183,9 @@ window.onload = () => {
         const playerName = playerNameInput.value.trim();
         if (!playerName) { alert('玩家名不能为空！'); startServerTesting(); return; }
         const serverUrl = serverAddressInput.value.trim();
+        // 每次点击连接时，都保存当前的地址
         localStorage.setItem('drawGuessPlayerName', playerName);
-        localStorage.setItem('drawGuessServerAddress', serverUrl);
+        localStorage.setItem('drawGuessServerAddress', serverUrl); 
         playerNameInput.disabled = true;
         serverAddressInput.disabled = true;
         connectButton.disabled = true;

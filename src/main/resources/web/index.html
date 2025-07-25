@@ -8,7 +8,137 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        body{font-family:'Noto Sans SC',sans-serif;background-size:cover;background-position:center;background-attachment:fixed;margin:0;padding:20px;display:flex;flex-direction:column;align-items:center;color:#333;min-height:100vh;transition:background-image .5s ease-in-out}h1{color:rgba(255,255,255,.9);font-weight:700;text-shadow:0 2px 5px rgba(0,0,0,.3);font-size:3em}#status{background-color:rgba(255,255,255,.1);backdrop-filter:blur(1px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.2);padding:10px 20px;border-radius:12px;font-size:1.2em;color:#d9534f;font-weight:500;box-shadow:0 4px 15px rgba(0,0,0,.1);text-align:center;margin-bottom:20px}#start-game-button{background-color:#007bff;color:#fff;padding:10px 25px;font-size:1.1em;margin-top:-10px;margin-bottom:20px;box-shadow:0 4px 15px rgba(0,123,255,.3);border:none;border-radius:8px;cursor:pointer;transition:all .2s ease}#start-game-button:hover{background-color:#0069d9;transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,123,255,.4)}#connection-controls{display:flex;flex-direction:column;gap:15px;align-items:center;background-color:rgba(255,255,255,.1);backdrop-filter:blur(1px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.2);padding:25px;border-radius:12px;box-shadow:0 4px 15px rgba(0,0,0,.1);margin-bottom:20px;width:100%;max-width:500px}.input-group{width:100%;display:flex;flex-direction:column;gap:8px}.connection-label{font-size:.9em;font-weight:500;color:rgba(255,255,255,.85);text-shadow:0 1px 2px rgba(0,0,0,.2);align-self:flex-start;padding-left:2px}.connection-input{width:100%;box-sizing:border-box;border:1px solid rgba(0,0,0,.1);background-color:rgba(255,255,255,.6);border-radius:6px;padding:12px;font-size:1em;color:#333}#server-group{display:flex;width:100%;gap:10px;align-items:center}#server-address-input{flex-grow:1}#server-status{font-size:.9em;font-weight:500;text-shadow:0 1px 2px rgba(0,0,0,.2);min-width:120px;text-align:right;padding:0 5px;transition:color .3s}#server-status.online{color:#2eff7b}#server-status.offline{color:#ff4d4d}#server-status.testing{color:#ffc107}#connect-button{width:100%;background-color:#28a745;color:#fff;box-shadow:0 2px 5px rgba(40,167,69,.3);transition:background-color .2s,box-shadow .2s;padding:12px}#connect-button:hover:not(:disabled){background-color:#218838;box-shadow:0 4px 8px rgba(40,167,69,.4)}#connect-button:disabled{background-color:#6c757d;box-shadow:none;cursor:not-allowed}.hidden{display:none!important}#game-wrapper{display:flex;flex-wrap:wrap;gap:20px;width:100%;max-width:1200px;margin-top:20px;align-items:stretch}#canvas-container{flex:3;min-width:600px}#canvas{background-color:rgba(255,255,255,.85);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);border:1px solid rgba(255,255,255,.3);border-radius:12px;box-shadow:0 4px 15px rgba(0,0,0,.1);cursor:crosshair;width:100%;height:auto}#sidebar{flex:1;min-width:300px;display:flex;flex-direction:column;background-color:rgba(255,255,255,.5);backdrop-filter:blur(1px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.2);border-radius:12px;box-shadow:0 4px 15px rgba(0,0,0,.1);padding:20px}#server-info-panel{background-color:rgba(255,255,255,.2);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:12px 15px;margin-bottom:15px;font-size:.9em;color:#333}.info-item{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.info-item:last-child{margin-bottom:0}.info-label{font-weight:500}.info-value{font-weight:500;display:flex;align-items:center;gap:8px}.progress-bar-container{width:80px;height:8px;background-color:rgba(0,0,0,.2);border-radius:4px;overflow:hidden}.progress-bar{height:100%;width:0;background-color:#2eff7b;border-radius:4px;transition:width .5s ease-out}#chat-area{flex-grow:1;overflow-y:auto;background-color:transparent;border:none;padding-right:10px;margin-bottom:15px}#chat-area p{margin:0 0 8px;padding:8px 12px;word-wrap:break-word;border-radius:6px}.system-message{color:#555;font-style:italic;text-align:center;background-color:rgba(0,0,0,.05);margin-bottom:10px!important}.correct-guess{color:#155724;font-weight:700;background-color:#d4edda}#input-area{display:flex;gap:10px}#guess-input{flex-grow:1;border:1px solid rgba(0,0,0,.1);background-color:rgba(255,255,255,.5);border-radius:6px;padding:10px;font-size:1em;transition:border-color .3s,box-shadow .3s;color:#333}#guess-input::placeholder{color:#777}#guess-input:focus{outline:0;background-color:rgba(255,255,255,.8);border-color:#1877f2;box-shadow:0 0 0 2px rgba(24,119,242,.2)}button{border:none;border-radius:6px;padding:10px 15px;font-size:1em;font-weight:500;cursor:pointer;transition:all .2s ease}button:active{transform:scale(.98)}#send-button{background-color:#1877f2;color:#fff;box-shadow:0 2px 5px rgba(24,119,242,.3)}#send-button:hover{background-color:#166fe5;box-shadow:0 4px 8px rgba(24,119,242,.4)}#clear-button{width:100%;background-color:rgba(255,255,255,.5);color:#333;margin-top:10px}#clear-button:hover{background-color:rgba(255,255,255,.8)}#word-choice-modal{position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,.6);display:flex;justify-content:center;align-items:center;z-index:1000}#word-choice-dialog{background-color:rgba(255,255,255,.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:30px 40px;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.2);text-align:center;display:flex;flex-direction:column;gap:20px}#word-choice-dialog h2{margin:0;color:#333;font-weight:700}#word-options{display:flex;gap:15px}#word-options button{background-color:#007bff;color:#fff;padding:12px 25px;font-size:1.1em;box-shadow:0 2px 5px rgba(0,123,255,.3)}#word-options button:hover{background-color:#0069d9;box-shadow:0 4px 8px rgba(0,123,255,.4)}footer{margin-top:auto;padding-top:20px;padding-bottom:10px;text-align:center;font-size:.9em;color:rgba(255,255,255,.7);text-shadow:0 1px 2px rgba(0,0,0,.3)}footer a{color:rgba(255,255,255,.9);text-decoration:none;transition:color .2s}footer a:hover{color:#fff;text-decoration:underline}
+        /* --- 桌面端默认样式 --- */
+        html {
+            height: 100%;
+            overflow: hidden;
+        }
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            margin: 0;
+            padding: 10px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #333;
+            height: 100%;
+            box-sizing: border-box;
+            transition: background-image .5s ease-in-out;
+        }
+
+        h1 { color: rgba(255, 255, 255, .9); font-weight: 700; text-shadow: 0 2px 5px rgba(0, 0, 0, .3); font-size: 2.2em; flex-shrink: 0; margin: 10px 0; }
+        footer { margin-top: auto; padding-top: 10px; padding-bottom: 10px; text-align: center; font-size: .9em; color: rgba(255, 255, 255, .7); text-shadow: 0 1px 2px rgba(0, 0, 0, .3); flex-shrink: 0; }
+        footer a { color: rgba(255, 255, 255, .9); text-decoration: none; transition: color .2s }
+        footer a:hover { color: #fff; text-decoration: underline }
+
+        #status{background-color:rgba(255,255,255,.1);backdrop-filter:blur(1px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.2);padding:10px 20px;border-radius:12px;font-size:1.2em;color:#d9534f;font-weight:500;box-shadow:0 4px 15px rgba(0,0,0,.1);text-align:center;margin-bottom:20px}
+        #start-game-button{background-color:#007bff;color:#fff;padding:10px 25px;font-size:1.1em;margin-top:-10px;margin-bottom:20px;box-shadow:0 4px 15px rgba(0,123,255,.3);border:none;border-radius:8px;cursor:pointer;transition:all .2s ease}
+        #start-game-button:hover{background-color:#0069d9;transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,123,255,.4)}
+        
+        #connection-controls{display:flex;flex-direction:column;gap:15px;align-items:center;background-color:rgba(255,255,255,.1);backdrop-filter:blur(1px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.2);padding:25px;border-radius:12px;box-shadow:0 4px 15px rgba(0,0,0,.1);margin-bottom:20px;width:100%;max-width:500px}
+        .input-group{width:100%;display:flex;flex-direction:column;gap:8px}
+        .connection-label{font-size:.9em;font-weight:500;color:rgba(255,255,255,.85);text-shadow:0 1px 2px rgba(0,0,0,.2);align-self:flex-start;padding-left:2px}
+        .connection-input{width:100%;box-sizing:border-box;border:1px solid rgba(0,0,0,.1);background-color:rgba(255,255,255,.6);border-radius:6px;padding:12px;font-size:1em;color:#333}
+        #server-group{display:flex;width:100%;gap:10px;align-items:center}
+        #server-address-input{flex-grow:1}
+        #server-status{font-size:.9em;font-weight:500;text-shadow:0 1px 2px rgba(0,0,0,.2);min-width:120px;text-align:right;padding:0 5px;transition:color .3s}
+        #server-status.online{color:#2eff7b}
+        #server-status.offline{color:#ff4d4d}
+        #server-status.testing{color:#ffc107}
+        #connect-button{width:100%;background-color:#28a745;color:#fff;box-shadow:0 2px 5px rgba(40,167,69,.3);transition:background-color .2s,box-shadow .2s;padding:12px}
+        #connect-button:hover:not(:disabled){background-color:#218838;box-shadow:0 4px 8px rgba(40,167,69,.4)}
+        #connect-button:disabled{background-color:#6c757d;box-shadow:none;cursor:not-allowed}
+        .hidden{display:none!important}
+        
+        #game-wrapper{
+            display:flex;
+            gap:20px;
+            width:100%;
+            max-width:1200px;
+            align-items:stretch;
+            flex-grow:1;
+            min-height:0;
+        }
+        
+        #canvas-container{flex:3;min-width:600px;display:flex}
+        #canvas{background-color:rgba(255,255,255,.85);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);border:1px solid rgba(255,255,255,.3);border-radius:12px;box-shadow:0 4px 15px rgba(0,0,0,.1);cursor:crosshair;width:100%;height:100%;}
+        
+        #sidebar{flex:1;min-width:300px;display:flex;flex-direction:column;background-color:rgba(255,255,255,.5);backdrop-filter:blur(1px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.2);border-radius:12px;box-shadow:0 4px 15px rgba(0,0,0,.1);padding:20px}
+        #server-info-panel{background-color:rgba(255,255,255,.2);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:12px 15px;margin-bottom:15px;font-size:.9em;color:#333}
+        .info-item{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+        .info-item:last-child{margin-bottom:0}
+        .info-label{font-weight:500}
+        .info-value{font-weight:500;display:flex;align-items:center;gap:8px}
+        .progress-bar-container{width:80px;height:8px;background-color:rgba(0,0,0,.2);border-radius:4px;overflow:hidden}
+        .progress-bar{height:100%;width:0;background-color:#2eff7b;border-radius:4px;transition:width .5s ease-out}
+        
+        #chat-area{
+            flex-grow:1;
+            overflow-y:auto;
+            background-color:transparent;
+            border:none;
+            padding-right:10px;
+            margin-bottom:15px;
+            min-height:0;
+        }
+        
+        #chat-area p{margin:0 0 8px;padding:8px 12px;word-wrap:break-word;border-radius:6px}
+        .system-message{color:#555;font-style:italic;text-align:center;background-color:rgba(0,0,0,.05);margin-bottom:10px!important}
+        .correct-guess{color:#155724;font-weight:700;background-color:#d4edda}
+        #input-area{display:flex;gap:10px}
+        #guess-input{flex-grow:1;border:1px solid rgba(0,0,0,.1);background-color:rgba(255,255,255,.5);border-radius:6px;padding:10px;font-size:1em;transition:border-color .3s,box-shadow .3s;color:#333}
+        #guess-input::placeholder{color:#777}
+        #guess-input:focus{outline:0;background-color:rgba(255,255,255,.8);border-color:#1877f2;box-shadow:0 0 0 2px rgba(24,119,242,.2)}
+        button{border:none;border-radius:6px;padding:10px 15px;font-size:1em;font-weight:500;cursor:pointer;transition:all .2s ease}
+        button:active{transform:scale(.98)}
+        #send-button{background-color:#1877f2;color:#fff;box-shadow:0 2px 5px rgba(24,119,242,.3)}
+        #send-button:hover{background-color:#166fe5;box-shadow:0 4px 8px rgba(24,119,242,.4)}
+        #clear-button{width:100%;background-color:rgba(255,255,255,.5);color:#333;margin-top:10px}
+        #clear-button:hover{background-color:rgba(255,255,255,.8)}
+        #word-choice-modal{position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,.6);display:flex;justify-content:center;align-items:center;z-index:1000}
+        #word-choice-dialog{background-color:rgba(255,255,255,.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:30px 40px;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.2);text-align:center;display:flex;flex-direction:column;gap:20px}
+        #word-choice-dialog h2{margin:0;color:#333;font-weight:700}
+        #word-options{display:flex;gap:15px}
+        #word-options button{background-color:#007bff;color:#fff;padding:12px 25px;font-size:1.1em;box-shadow:0 2px 5px rgba(0,123,255,.3)}
+        #word-options button:hover{background-color:#0069d9;box-shadow:0 4px 8px rgba(0,123,255,.4)}
+
+        /* 【新增】移动端/窄屏设备适配媒体查询 */
+        @media (max-width: 768px) {
+            /* 恢复页面滚动 */
+            html, body {
+                height: auto;
+                overflow: auto;
+            }
+            body {
+                padding: 10px; /* 调整手机上的边距 */
+            }
+            h1 {
+                font-size: 2em; /* 缩小标题 */
+                margin-bottom: 15px;
+            }
+            /* 将游戏区域改为垂直堆叠布局 */
+            #game-wrapper {
+                flex-direction: column;
+                flex-grow: 0; /* 取消填充 */
+            }
+            /* 重置画板容器样式，并给一个合适的高度 */
+            #canvas-container {
+                min-width: 0;
+                height: 75vw; /* 高度为视口宽度的75%，保持一个不错的比例 */
+                max-height: 400px; /* 限制最大高度 */
+            }
+            /* 重置侧边栏最小宽度 */
+            #sidebar {
+                min-width: 0;
+            }
+            /* 移动端聊天框高度由内容决定，但设置一个最小高度防止太扁 */
+            #chat-area {
+                min-height: 200px;
+            }
+        }
     </style>
 </head>
 <body>
